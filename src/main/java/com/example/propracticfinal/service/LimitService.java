@@ -1,8 +1,10 @@
 package com.example.propracticfinal.service;
 
+import com.example.propracticfinal.config.PaymentConfig;
 import com.example.propracticfinal.db.entity.LimitEntity;
 import com.example.propracticfinal.db.repository.LimitRepository;
 import com.example.propracticfinal.dto.LimitDTO;
+import com.example.propracticfinal.exception.RequestException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,9 +15,11 @@ import java.math.BigDecimal;
 @Service
 public class LimitService {
 
+    private final PaymentConfig config;
     private final LimitRepository limitRepository;
 
-    public LimitService(LimitRepository limitRepository) {
+    public LimitService(PaymentConfig config, LimitRepository limitRepository) {
+        this.config = config;
         this.limitRepository = limitRepository;
     }
 
@@ -25,8 +29,8 @@ public class LimitService {
         if(limit == null) {
             log.info("Лимит для user= {} не найден, заведу новый ", limitDTO.userid() );
             limit = new LimitEntity();
-            limit.setAmount(BigDecimal.valueOf(10000)); //В настройку!!
-            limit.setLockAmount(BigDecimal.ZERO); //В настройку!
+            limit.setAmount(config.getAmount());
+            limit.setLockAmount(BigDecimal.ZERO);
             limit.setUserId(limitDTO.userid());
             limitRepository.save(limit);
             log.info(" Создан новый лимит : id= {}, user ={}, amount= {}, loockAmout = {} ", limit.getId(), limit.getUserId(), limit.getAmount(), limit.getLockAmount());
@@ -57,10 +61,10 @@ public class LimitService {
                 limitRepository.save(limit);
             }
             else {
-                throw new RuntimeException("Ошибка при проверке блокированного лимита");
+                throw new RequestException("Ошибка при проверке блокированного лимита");
             }
         }catch (RuntimeException e) {
-            throw new RuntimeException("Ошибка при изменении лимита");
+            throw new RequestException("Ошибка при изменении лимита");
         }
         return true;
     }
@@ -74,7 +78,7 @@ public class LimitService {
             limitRepository.save(limit);
         }
         else {
-            throw new RuntimeException("Ошибка отмене блокировки на " + limitDTO.amount() + " рублей.");
+            throw new RequestException("Ошибка отмене блокировки на " + limitDTO.amount() + " рублей.");
         }
         return true;
     }
@@ -82,7 +86,7 @@ public class LimitService {
     private LimitEntity getLimitEntity(LimitDTO limitDTO) {
         LimitEntity limit = limitRepository.findByUserId(limitDTO.userid());
         if (limit == null ) {
-            throw new RuntimeException("Лимит не найден");
+            throw new RequestException("Лимит не найден");
         }
         return limit;
     }
