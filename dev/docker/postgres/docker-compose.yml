@@ -1,0 +1,23 @@
+
+services:
+  postgres :
+    image: bitnami/postgresql
+    container_name : postgresql-for-javaPro
+    environment:
+      POSTGRES_PASSWORD: example
+    ports :
+      - "5432:5432"
+
+#    volumes:
+#      - ./wiremock/stubs/__files/:/home/wiremock/__files/
+#      - ./wiremock/stubs/mapping/:/home/wiremock/mappings/
+#    command:
+#      - -verbose
+#      - -global-response-templating
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
