@@ -35,6 +35,11 @@ public class LimitController {
         return new LimitResponse(limitService.doRollback(limit));
     }
 
+    @PostMapping("/cachback")
+    public LimitResponse doCashback(@RequestBody LimitDTO limit) {
+        return new LimitResponse(limitService.doCashback(limit));
+    }
+
     @PostMapping("/confirm")
     public LimitResponse doConfirm(@RequestBody LimitDTO limit) {
         return new LimitResponse(limitService.doConfirm(limit));

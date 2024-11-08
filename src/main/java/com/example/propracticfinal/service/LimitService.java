@@ -83,6 +83,18 @@ public class LimitService {
         return true;
     }
 
+    @Transactional
+    public boolean doCashback(LimitDTO limitDTO) {
+        try {
+            LimitEntity limit = getLimitEntity(limitDTO);
+            limit.setAmount(limit.getAmount().add(limitDTO.amount()));
+            limitRepository.save(limit);
+            return true;
+        }catch (RuntimeException e) {
+            throw new RequestException("Ошибка при возврате средств");
+        }
+    }
+
     private LimitEntity getLimitEntity(LimitDTO limitDTO) {
         LimitEntity limit = limitRepository.findByUserId(limitDTO.userid());
         if (limit == null ) {
