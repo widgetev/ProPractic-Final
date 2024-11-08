@@ -24,4 +24,4 @@ service:
   limits:
     default:
       amount: 10000
-      clean-period: 1H
+      clean-period: P1D
